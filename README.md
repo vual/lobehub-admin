@@ -64,11 +64,108 @@ docker compose up -d
 
 访问：<http://localhost:3000>
 
-注意：默认 compose 文件使用已发布的 `calciumion/new-api:latest` 镜像。如果需要运行当前仓库的代码，请先构建本地镜像，并将 compose 中 `new-api` 服务的 `image` 改为本地镜像：
+默认 compose 文件使用上游 `calciumion/new-api:latest` 镜像。如果要运行本项目的 LobeHub Admin 镜像，请将 compose 中 `new-api` 服务的 `image` 改为 `registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest`，或使用 `ghcr.io/vual/lobehub-admin:latest`：
 
 ~~~bash
-docker build -t lobehub-admin:local .
+docker pull registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
 ~~~
+
+### 与 LobeHub 一起启动
+
+如果你使用 LobeHub 项目中的 `docker-compose/deploy/docker-compose.yml`，可以将本项目作为同一个 Compose 项目的服务加入。这样管理端会与 LobeHub 共享 `lobe-network`、PostgreSQL 和 Redis，并直接读取 LobeHub 的用户表。
+
+在 LobeHub Compose 文件的 `services:` 下追加以下服务。默认直接拉取阿里云镜像，也可以将 `image` 替换为 GHCR 镜像：
+
+~~~yaml
+  lobehub-admin:
+    image: registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+    container_name: lobehub-admin
+    restart: always
+    command: ["--log-dir", "/app/logs"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./lobehub-admin-data:/data
+      - ./lobehub-admin-logs:/app/logs
+    environment:
+      - SQL_DSN=postgresql://postgres:${POSTGRES_PASSWORD}@postgresql:5432/${LOBE_DB_NAME}
+      - LOBEHUB_DB_SCHEMA=public
+      - REDIS_CONN_STRING=redis://redis:6379/0
+      - SESSION_SECRET=replace-with-a-long-random-secret
+      - SESSION_COOKIE_SECURE=false
+      - TZ=Asia/Shanghai
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - lobe-network
+~~~
+
+然后在 LobeHub Compose 目录执行：
+
+~~~bash
+docker compose pull
+docker compose up -d
+docker compose ps
+~~~
+
+启动后：
+
+- LobeHub：<http://localhost:3210>
+- LobeHub Admin：<http://localhost:3000>
+
+容器之间必须使用 Compose 服务名通信，因此 `SQL_DSN` 使用 `postgresql`，Redis 使用 `redis`，不要在容器配置中写 `localhost`。LobeHub Compose 默认将 PostgreSQL 的业务表放在 `public` schema；如果实际使用其他 schema，请同步修改 `LOBEHUB_DB_SCHEMA`。
+
+`SESSION_COOKIE_SECURE=false` 仅适用于本地 HTTP 调试。生产环境通过 HTTPS 访问时，应设置为 `true`，并同时配置 `SESSION_COOKIE_TRUSTED_URL`。请为 `SESSION_SECRET` 设置高强度随机值，不要使用示例值。
+
+### 独立启动本项目 Docker
+
+如果不需要与 LobeHub 使用同一个 Compose 项目，可以使用本仓库的独立 Compose 配置：
+
+1. 拉取已发布镜像：
+
+~~~bash
+docker pull registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+~~~
+
+2. 修改本仓库 `docker-compose.yml` 中 `new-api` 服务的镜像：
+
+~~~yaml
+services:
+  new-api:
+    image: registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+~~~
+
+3. 启动独立服务：
+
+~~~bash
+docker compose pull
+docker compose up -d
+docker compose ps
+~~~
+
+该配置会独立启动网关、PostgreSQL 和 Redis，网关地址为 <http://localhost:3000>。如果还要启用 LobeHub 用户管理，`SQL_DSN` 必须连接到包含 LobeHub 业务表的 PostgreSQL 数据库，并设置 `LOBEHUB_DB_SCHEMA`；不能使用独立 Compose 新建的空数据库代替 LobeHub 数据库。
+
+也可以只运行本项目容器，并连接外部 PostgreSQL 和 Redis：
+
+~~~bash
+docker run -d --name lobehub-admin --restart unless-stopped \
+  -p 3000:3000 \
+  -e SQL_DSN="postgresql://postgres:password@host.docker.internal:5432/lobechat" \
+  -e LOBEHUB_DB_SCHEMA=public \
+  -e REDIS_CONN_STRING="redis://host.docker.internal:6379/0" \
+  -e SESSION_SECRET="replace-with-a-long-random-secret" \
+  -e SESSION_COOKIE_SECURE=false \
+  -e TZ=Asia/Shanghai \
+  -v ./data:/data \
+  -v ./logs:/app/logs \
+  registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+~~~
+
+`host.docker.internal` 仅适用于 Docker Desktop 常见场景；Linux 或远程数据库请替换为实际可访问的主机名或 IP。生产环境请使用独立的密钥管理、HTTPS、数据库备份和最小权限数据库账号。
+
 
 ### 本地开发
 
@@ -179,4 +276,3 @@ GOWORK=off go build ./...
 
 ## 交流
 微信：822784588
-

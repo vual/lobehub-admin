@@ -64,11 +64,108 @@ docker compose up -d
 
 Open <http://localhost:3000>.
 
-Note: the default compose file uses the published `calciumion/new-api:latest` image. To run the code from this repository, build a local image and change the `image` value of the `new-api` service in the compose file:
+The default compose file uses the upstream `calciumion/new-api:latest` image. To run the LobeHub Admin image for this project, change the `image` value of the `new-api` service to `registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest`, or use `ghcr.io/vual/lobehub-admin:latest`:
 
 ~~~bash
-docker build -t lobehub-admin:local .
+docker pull registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
 ~~~
+
+### Run Together with LobeHub
+
+If you use LobeHub's `docker-compose/deploy/docker-compose.yml`, you can add this project as another service in the same Compose project. The administration service will then share LobeHub's `lobe-network`, PostgreSQL, and Redis, and can read LobeHub's user tables directly.
+
+Append the following service under `services:` in the LobeHub Compose file. The service pulls the Aliyun image by default; you can replace `image` with the GHCR image if needed:
+
+~~~yaml
+  lobehub-admin:
+    image: registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+    container_name: lobehub-admin
+    restart: always
+    command: ["--log-dir", "/app/logs"]
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./lobehub-admin-data:/data
+      - ./lobehub-admin-logs:/app/logs
+    environment:
+      - SQL_DSN=postgresql://postgres:${POSTGRES_PASSWORD}@postgresql:5432/${LOBE_DB_NAME}
+      - LOBEHUB_DB_SCHEMA=public
+      - REDIS_CONN_STRING=redis://redis:6379/0
+      - SESSION_SECRET=replace-with-a-long-random-secret
+      - SESSION_COOKIE_SECURE=false
+      - TZ=Asia/Shanghai
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - lobe-network
+~~~
+
+Then run the following commands from the LobeHub Compose directory:
+
+~~~bash
+docker compose pull
+docker compose up -d
+docker compose ps
+~~~
+
+After startup:
+
+- LobeHub: <http://localhost:3210>
+- LobeHub Admin: <http://localhost:3000>
+
+Containers must communicate through Compose service names. Therefore, use `postgresql` in `SQL_DSN` and `redis` for Redis; do not use `localhost` inside container configuration. The LobeHub Compose setup places PostgreSQL business tables in the `public` schema by default. If you use another schema, update `LOBEHUB_DB_SCHEMA` accordingly.
+
+`SESSION_COOKIE_SECURE=false` is suitable only for local HTTP development. For production HTTPS access, set it to `true` and configure `SESSION_COOKIE_TRUSTED_URL` as well. Set `SESSION_SECRET` to a strong random value and never use the example value in production.
+
+### Run This Project with Standalone Docker
+
+If you do not need to use the same Compose project as LobeHub, use this repository's standalone Compose configuration:
+
+1. Pull the published image:
+
+~~~bash
+docker pull registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+~~~
+
+2. Change the image for the `new-api` service in this repository's `docker-compose.yml`:
+
+~~~yaml
+services:
+  new-api:
+    image: registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+~~~
+
+3. Start the standalone services:
+
+~~~bash
+docker compose pull
+docker compose up -d
+docker compose ps
+~~~
+
+This configuration starts the gateway, PostgreSQL, and Redis independently. The gateway is available at <http://localhost:3000>. To enable LobeHub user management as well, `SQL_DSN` must point to a PostgreSQL database containing the LobeHub business tables, and `LOBEHUB_DB_SCHEMA` must be set. The empty database created by the standalone Compose file cannot replace the LobeHub database.
+
+You can also run only this project's container and connect it to external PostgreSQL and Redis services:
+
+~~~bash
+docker run -d --name lobehub-admin --restart unless-stopped \
+  -p 3000:3000 \
+  -e SQL_DSN="postgresql://postgres:password@host.docker.internal:5432/lobechat" \
+  -e LOBEHUB_DB_SCHEMA=public \
+  -e REDIS_CONN_STRING="redis://host.docker.internal:6379/0" \
+  -e SESSION_SECRET="replace-with-a-long-random-secret" \
+  -e SESSION_COOKIE_SECURE=false \
+  -e TZ=Asia/Shanghai \
+  -v ./data:/data \
+  -v ./logs:/app/logs \
+  registry.cn-hangzhou.aliyuncs.com/ann-chat/lobehub-admin:latest
+~~~
+
+`host.docker.internal` is common with Docker Desktop. On Linux or when using a remote database, replace it with an actually reachable hostname or IP address. For production, use dedicated secret management, HTTPS, database backups, and a least-privilege database account.
+
 
 ### Local Development
 
@@ -180,4 +277,3 @@ This project is intended only for lawful, authorized AI API aggregation, interna
 ## Contact
 
 WeChat: 822784588
-
