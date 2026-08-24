@@ -2,7 +2,7 @@
 
 An AI API gateway and LobeHub administration platform based on [new-api](https://github.com/QuantumNous/new-api).
 
-This project retains the complete capabilities of new-api and adds LobeHub user management, allowing AI gateway operations and LobeHub account administration to be handled from one console.
+This project retains the complete capabilities of new-api and adds LobeHub user and conversation management, allowing AI gateway operations and LobeHub account administration to be handled from one console.
 
 ## Main Addition
 
@@ -20,6 +20,19 @@ After signing in to the administrator console, open **LobeHub → Users** in the
 - Revoke revocable database sessions and related credentials when changing roles, banning users, or resetting passwords
 - Record administrator actions for auditing sensitive changes
 
+### LobeHub Conversation Management
+
+After signing in as a super administrator, open **LobeHub → Conversations** in the sidebar to:
+
+- Browse LobeHub conversations with pagination and search across conversations, users, agents, or groups
+- Filter by conversation type, status, trigger, model, provider, and update date
+- Sort by creation time, update time, message count, total tokens, or total cost
+- View the owning user, Agent/group, message count, model, provider, and update time
+- Open conversation details to inspect messages, roles, reasoning, tool calls, search data, translations, attachments, usage, and metadata
+- Load earlier messages with cursor-based pagination; this feature is read-only and does not modify or delete LobeHub conversations or messages
+
+Conversation management is available only to super administrators. Conversation content may contain user prompts, model output, attachment URLs, and business metadata; configure administrator access according to your organization's data-access and privacy requirements.
+
 ## LobeHub Integration Requirements
 
 LobeHub user management reads the existing LobeHub PostgreSQL business tables. It does not create or upgrade the LobeHub schema.
@@ -29,7 +42,7 @@ The following requirements must be met:
 1. The gateway's primary database must be PostgreSQL. The gateway itself still supports SQLite and MySQL, but LobeHub user management is unavailable with those databases.
 2. LobeHub business tables must be in the same PostgreSQL database, and the gateway database user must have read and write permissions.
 3. Set `LOBEHUB_DB_SCHEMA` to the schema containing the LobeHub business tables. The default is `public`.
-4. The LobeHub database must contain `users`, `accounts`, `auth_sessions`, and the required OIDC-related tables and columns.
+4. LobeHub user management requires `users`, `accounts`, `auth_sessions`, and the required OIDC-related tables and columns. Conversation management additionally requires `topics`, `messages`, `threads`, `message_groups`, `agents`, `chat_groups`, and the related message attachment, plugin, translation, search-query, and TTS tables and columns.
 
 Example configuration:
 
@@ -213,7 +226,7 @@ After the first startup, open the homepage and follow the setup wizard to create
 1. Sign in to the administration console.
 2. Configure channels, models, billing, and security policies in system settings.
 3. Confirm that `LOBEHUB_DB_SCHEMA` points to the correct LobeHub schema.
-4. Open **LobeHub → Users** in the sidebar to verify the user list and permissions.
+4. Open **LobeHub → Users** in the sidebar to verify the user list and permissions. Super administrators can also open **LobeHub → Conversations** to inspect conversations and message details.
 
 The LobeHub user management section is available only to gateway administrators. Changing a LobeHub user's global role is a high-risk operation that requires elevated permissions and may invalidate the user's existing login credentials.
 
@@ -237,8 +250,13 @@ LobeHub user management is mainly implemented in:
 - `controller/lobehub_user.go`
 - `service/lobehub_user.go`
 - `model/lobehub_user.go`
+- `controller/lobehub_conversation.go`
+- `service/lobehub_conversation.go`
+- `model/lobehub_conversation.go`
 - `web/src/features/lobehub-users/`
 - `web/src/routes/_authenticated/lobehub/users/`
+- `web/src/features/lobehub-conversations/`
+- `web/src/routes/_authenticated/lobehub/conversations/`
 
 ## Development Checks
 
@@ -258,7 +276,7 @@ cd relaykit
 GOWORK=off go build ./...
 ~~~
 
-When changing LobeHub user management, also verify authorization, concurrent updates, session revocation, PostgreSQL schema configuration, and frontend localization.
+When changing LobeHub user or conversation management, also verify authorization, concurrent updates, session revocation, conversation-detail pagination, PostgreSQL schema configuration, and frontend localization.
 
 ## Documentation
 

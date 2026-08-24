@@ -1,8 +1,10 @@
 # LobeHub Admin
 
+[English](./README.en.md)
+
 基于 [new-api](https://github.com/QuantumNous/new-api) 构建的 AI API 网关与 LobeHub 管理平台。
 
-本项目保留 new-api 的完整能力，并增加 LobeHub 用户管理功能，方便在同一个后台完成 API 网关运维和 LobeHub 账号治理。
+本项目保留 new-api 的完整能力，并增加 LobeHub 用户与会话管理功能，方便在同一个后台完成 API 网关运维和 LobeHub 账号治理。
 
 ## 主要新增功能
 
@@ -20,6 +22,19 @@
 - 变更角色、封禁或重置密码时清理可撤销的数据库会话和相关凭据
 - 对管理员操作记录审计信息，便于追踪敏感变更
 
+### LobeHub 会话管理
+
+登录超级管理员后台后，可在侧边栏的「LobeHub → 会话管理」中：
+
+- 分页查看 LobeHub 会话，并按会话、用户、Agent 或群组进行搜索
+- 按会话类型、状态、触发方式、模型、提供商和更新时间筛选
+- 按创建时间、更新时间、消息数、Token 总量或总费用排序
+- 查看会话所属用户、Agent/群组、消息数量、模型、提供商和更新时间
+- 打开会话详情，按时间顺序查看消息内容、角色、推理、工具调用、搜索信息、翻译、附件、用量和元数据
+- 使用游标分页加载较早消息；该功能只读，不会修改或删除 LobeHub 会话及消息
+
+会话管理入口仅对超级管理员开放。会话内容可能包含用户输入、模型输出、附件链接和业务元数据，请根据组织的数据访问和隐私规范配置管理员权限。
+
 ## LobeHub 集成要求
 
 LobeHub 用户管理读取的是已有 LobeHub PostgreSQL 业务表，不会替 LobeHub 创建或升级表结构。
@@ -29,7 +44,7 @@ LobeHub 用户管理读取的是已有 LobeHub PostgreSQL 业务表，不会替 
 1. 网关主数据库必须是 PostgreSQL；网关本身仍可使用 SQLite 或 MySQL，但此时无法使用 LobeHub 用户管理。
 2. LobeHub 业务表必须位于同一个 PostgreSQL 数据库中，并且网关连接账号具备读取和写入权限。
 3. `LOBEHUB_DB_SCHEMA` 配置为 LobeHub 业务表所在 schema，默认为 `public`。
-4. LobeHub 数据库结构需要包含 `users`、`accounts`、`auth_sessions` 以及 OIDC 相关表和字段。
+4. LobeHub 用户管理需要 `users`、`accounts`、`auth_sessions` 以及 OIDC 相关表和字段；启用会话管理时，还需要 `topics`、`messages`、`threads`、`message_groups`、`agents`、`chat_groups` 及消息附件、插件、翻译、搜索查询和 TTS 相关表及字段。
 
 示例配置：
 
@@ -213,7 +228,7 @@ go run main.go
 1. 登录管理后台。
 2. 在系统设置中配置渠道、模型、计费和安全策略。
 3. 确认 `LOBEHUB_DB_SCHEMA` 指向正确的 LobeHub schema。
-4. 从侧边栏进入「LobeHub → 用户管理」验证用户列表和操作权限。
+4. 从侧边栏进入「LobeHub → 用户管理」验证用户列表和操作权限；超级管理员还可以进入「LobeHub → 会话管理」查看会话和消息详情。
 
 LobeHub 用户管理入口只对网关管理员开放；修改 LobeHub 全局角色属于高风险操作，需要更高权限，并可能使用户现有登录凭据失效。
 
@@ -237,8 +252,13 @@ LobeHub 用户管理相关实现主要位于：
 - `controller/lobehub_user.go`
 - `service/lobehub_user.go`
 - `model/lobehub_user.go`
+- `controller/lobehub_conversation.go`
+- `service/lobehub_conversation.go`
+- `model/lobehub_conversation.go`
 - `web/src/features/lobehub-users/`
 - `web/src/routes/_authenticated/lobehub/users/`
+- `web/src/features/lobehub-conversations/`
+- `web/src/routes/_authenticated/lobehub/conversations/`
 
 ## 开发与检查
 
@@ -258,7 +278,7 @@ cd relaykit
 GOWORK=off go build ./...
 ~~~
 
-提交涉及 LobeHub 用户管理的变更时，建议同时验证：权限校验、并发更新、会话撤销、PostgreSQL schema 配置和前端多语言显示。
+提交涉及 LobeHub 用户或会话管理的变更时，建议同时验证：权限校验、并发更新、会话撤销、会话详情分页、PostgreSQL schema 配置和前端多语言显示。
 
 ## 相关文档
 
