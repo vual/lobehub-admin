@@ -168,6 +168,12 @@ export function useSidebarData(): SidebarData {
             url: '/lobehub/users',
             icon: Database,
           },
+          {
+            title: t('LobeHub Conversations'),
+            url: '/lobehub/conversations',
+            icon: MessageSquare,
+            requiredRole: ROLE.SUPER_ADMIN,
+          },
         ],
       },
     ],

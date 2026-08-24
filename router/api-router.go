@@ -393,5 +393,14 @@ func SetApiRouter(router *gin.Engine) {
 			lobeHubUserRoute.POST("/:id/reset-password", controller.ResetLobeHubUserPassword)
 		}
 		apiRouter.PATCH("/lobehub/users/:id/role", middleware.RootAuth(), controller.ChangeLobeHubUserRole)
+
+		lobeHubConversationRoute := apiRouter.Group("/lobehub/conversations")
+		lobeHubConversationRoute.Use(middleware.RootAuth())
+		{
+			lobeHubConversationRoute.GET("", controller.ListLobeHubConversations)
+			lobeHubConversationRoute.GET("/filters", controller.ListLobeHubConversationFilters)
+			lobeHubConversationRoute.GET("/:id/messages", controller.ListLobeHubConversationMessages)
+		}
+
 	}
 }

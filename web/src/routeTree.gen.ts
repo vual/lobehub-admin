@@ -53,6 +53,7 @@ import { Route as AuthenticatedUsageLogsSectionRouteImport } from './routes/_aut
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedWalletIndexRouteImport } from './routes/_authenticated/wallet/index'
 import { Route as PricingModelIdIndexRouteImport } from './routes/pricing/$modelId/index'
+import { Route as AuthenticatedLobehubConversationsIndexRouteImport } from './routes/_authenticated/lobehub/conversations/index'
 import { Route as AuthenticatedLobehubUsersIndexRouteImport } from './routes/_authenticated/lobehub/users/index'
 import { Route as AuthenticatedSystemSettingsAuthIndexRouteImport } from './routes/_authenticated/system-settings/auth/index'
 import { Route as AuthenticatedSystemSettingsAuthSectionRouteImport } from './routes/_authenticated/system-settings/auth/$section'
@@ -303,6 +304,12 @@ const PricingModelIdIndexRoute = PricingModelIdIndexRouteImport.update({
   path: '/pricing/$modelId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedLobehubConversationsIndexRoute =
+  AuthenticatedLobehubConversationsIndexRouteImport.update({
+    id: '/lobehub/conversations/',
+    path: '/lobehub/conversations/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLobehubUsersIndexRoute =
   AuthenticatedLobehubUsersIndexRouteImport.update({
     id: '/lobehub/users/',
@@ -444,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/system-settings/operations/$section': typeof AuthenticatedSystemSettingsOperationsSectionRoute
   '/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
+  '/lobehub/conversations/': typeof AuthenticatedLobehubConversationsIndexRoute
   '/lobehub/users/': typeof AuthenticatedLobehubUsersIndexRoute
   '/system-settings/auth/': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/system-settings/billing/': typeof AuthenticatedSystemSettingsBillingIndexRoute
@@ -502,6 +510,7 @@ export interface FileRoutesByTo {
   '/system-settings/operations/$section': typeof AuthenticatedSystemSettingsOperationsSectionRoute
   '/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
+  '/lobehub/conversations': typeof AuthenticatedLobehubConversationsIndexRoute
   '/lobehub/users': typeof AuthenticatedLobehubUsersIndexRoute
   '/system-settings/auth': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/system-settings/billing': typeof AuthenticatedSystemSettingsBillingIndexRoute
@@ -564,6 +573,7 @@ export interface FileRoutesById {
   '/_authenticated/system-settings/operations/$section': typeof AuthenticatedSystemSettingsOperationsSectionRoute
   '/_authenticated/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/_authenticated/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
+  '/_authenticated/lobehub/conversations/': typeof AuthenticatedLobehubConversationsIndexRoute
   '/_authenticated/lobehub/users/': typeof AuthenticatedLobehubUsersIndexRoute
   '/_authenticated/system-settings/auth/': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/_authenticated/system-settings/billing/': typeof AuthenticatedSystemSettingsBillingIndexRoute
@@ -625,6 +635,7 @@ export interface FileRouteTypes {
     | '/system-settings/operations/$section'
     | '/system-settings/security/$section'
     | '/system-settings/site/$section'
+    | '/lobehub/conversations/'
     | '/lobehub/users/'
     | '/system-settings/auth/'
     | '/system-settings/billing/'
@@ -683,6 +694,7 @@ export interface FileRouteTypes {
     | '/system-settings/operations/$section'
     | '/system-settings/security/$section'
     | '/system-settings/site/$section'
+    | '/lobehub/conversations'
     | '/lobehub/users'
     | '/system-settings/auth'
     | '/system-settings/billing'
@@ -744,6 +756,7 @@ export interface FileRouteTypes {
     | '/_authenticated/system-settings/operations/$section'
     | '/_authenticated/system-settings/security/$section'
     | '/_authenticated/system-settings/site/$section'
+    | '/_authenticated/lobehub/conversations/'
     | '/_authenticated/lobehub/users/'
     | '/_authenticated/system-settings/auth/'
     | '/_authenticated/system-settings/billing/'
@@ -1083,6 +1096,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingModelIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/lobehub/conversations/': {
+      id: '/_authenticated/lobehub/conversations/'
+      path: '/lobehub/conversations'
+      fullPath: '/lobehub/conversations/'
+      preLoaderRoute: typeof AuthenticatedLobehubConversationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lobehub/users/': {
       id: '/_authenticated/lobehub/users/'
       path: '/lobehub/users'
@@ -1294,6 +1314,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsageLogsIndexRoute: typeof AuthenticatedUsageLogsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedWalletIndexRoute: typeof AuthenticatedWalletIndexRoute
+  AuthenticatedLobehubConversationsIndexRoute: typeof AuthenticatedLobehubConversationsIndexRoute
   AuthenticatedLobehubUsersIndexRoute: typeof AuthenticatedLobehubUsersIndexRoute
 }
 
@@ -1319,6 +1340,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUsageLogsIndexRoute: AuthenticatedUsageLogsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWalletIndexRoute: AuthenticatedWalletIndexRoute,
+  AuthenticatedLobehubConversationsIndexRoute:
+    AuthenticatedLobehubConversationsIndexRoute,
   AuthenticatedLobehubUsersIndexRoute: AuthenticatedLobehubUsersIndexRoute,
 }
 

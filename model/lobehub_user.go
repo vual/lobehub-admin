@@ -153,7 +153,7 @@ func lobeHubTable(schema string, table string) string {
 	return fmt.Sprintf(`"%s"."%s"`, schema, table)
 }
 
-func CheckLobeHubSchema() (string, error) {
+func checkLobeHubSchema(requiredColumns map[string][]string) (string, error) {
 	if !common.UsingMainDatabase(common.DatabaseTypePostgreSQL) || DB == nil || DB.Dialector.Name() != "postgres" {
 		return "", ErrLobeHubPostgresRequired
 	}
@@ -181,7 +181,7 @@ func CheckLobeHubSchema() (string, error) {
 		}
 		found[row.TableName][row.ColumnName] = struct{}{}
 	}
-	for table, columns := range lobeHubRequiredColumns {
+	for table, columns := range requiredColumns {
 		for _, column := range columns {
 			if _, ok := found[table][column]; !ok {
 				return "", fmt.Errorf("%w: missing %s.%s", ErrLobeHubSchemaUnavailable, table, column)
@@ -189,6 +189,10 @@ func CheckLobeHubSchema() (string, error) {
 		}
 	}
 	return schema, nil
+}
+
+func CheckLobeHubSchema() (string, error) {
+	return checkLobeHubSchema(lobeHubRequiredColumns)
 }
 
 func lobeHubUserSelect(schema string) string {

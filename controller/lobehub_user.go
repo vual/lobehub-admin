@@ -246,12 +246,16 @@ func writeLobeHubError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, service.ErrInvalidLobeHubUserInput):
 		status, code, message = http.StatusBadRequest, "LOBEHUB_INVALID_INPUT", err.Error()
+	case errors.Is(err, service.ErrInvalidLobeHubConversationInput), errors.Is(err, model.ErrLobeHubConversationCursor):
+		status, code, message = http.StatusBadRequest, "LOBEHUB_INVALID_INPUT", err.Error()
 	case errors.Is(err, model.ErrLobeHubPostgresRequired):
 		status, code, message = http.StatusNotImplemented, "LOBEHUB_POSTGRES_REQUIRED", err.Error()
 	case errors.Is(err, model.ErrLobeHubSchemaUnavailable):
 		status, code, message = http.StatusServiceUnavailable, "LOBEHUB_SCHEMA_UNAVAILABLE", err.Error()
 	case errors.Is(err, model.ErrLobeHubUserNotFound):
 		status, code, message = http.StatusNotFound, "LOBEHUB_USER_NOT_FOUND", err.Error()
+	case errors.Is(err, model.ErrLobeHubConversationNotFound):
+		status, code, message = http.StatusNotFound, "LOBEHUB_CONVERSATION_NOT_FOUND", err.Error()
 	case errors.Is(err, model.ErrLobeHubConflict), errors.Is(err, model.ErrLobeHubStaleUpdate), errors.Is(err, model.ErrLobeHubCredentialState), errors.Is(err, model.ErrLobeHubRoleConfirmation):
 		status, code, message = http.StatusConflict, "LOBEHUB_USER_CONFLICT", err.Error()
 	}
