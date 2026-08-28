@@ -54,6 +54,8 @@ import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedWalletIndexRouteImport } from './routes/_authenticated/wallet/index'
 import { Route as PricingModelIdIndexRouteImport } from './routes/pricing/$modelId/index'
 import { Route as AuthenticatedLobehubConversationsIndexRouteImport } from './routes/_authenticated/lobehub/conversations/index'
+import { Route as AuthenticatedLobehubKnowledgeBasesIndexRouteImport } from './routes/_authenticated/lobehub/knowledge-bases/index'
+import { Route as AuthenticatedLobehubKnowledgeBasesIdRouteImport } from './routes/_authenticated/lobehub/knowledge-bases/$id'
 import { Route as AuthenticatedLobehubUsersIndexRouteImport } from './routes/_authenticated/lobehub/users/index'
 import { Route as AuthenticatedSystemSettingsAuthIndexRouteImport } from './routes/_authenticated/system-settings/auth/index'
 import { Route as AuthenticatedSystemSettingsAuthSectionRouteImport } from './routes/_authenticated/system-settings/auth/$section'
@@ -310,6 +312,18 @@ const AuthenticatedLobehubConversationsIndexRoute =
     path: '/lobehub/conversations/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLobehubKnowledgeBasesIndexRoute =
+  AuthenticatedLobehubKnowledgeBasesIndexRouteImport.update({
+    id: '/lobehub/knowledge-bases/',
+    path: '/lobehub/knowledge-bases/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLobehubKnowledgeBasesIdRoute =
+  AuthenticatedLobehubKnowledgeBasesIdRouteImport.update({
+    id: '/lobehub/knowledge-bases/$id',
+    path: '/lobehub/knowledge-bases/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedLobehubUsersIndexRoute =
   AuthenticatedLobehubUsersIndexRouteImport.update({
     id: '/lobehub/users/',
@@ -444,6 +458,7 @@ export interface FileRoutesByFullPath {
   '/users/': typeof AuthenticatedUsersIndexRoute
   '/wallet/': typeof AuthenticatedWalletIndexRoute
   '/pricing/$modelId/': typeof PricingModelIdIndexRoute
+  '/lobehub/knowledge-bases/$id': typeof AuthenticatedLobehubKnowledgeBasesIdRoute
   '/system-settings/auth/$section': typeof AuthenticatedSystemSettingsAuthSectionRoute
   '/system-settings/billing/$section': typeof AuthenticatedSystemSettingsBillingSectionRoute
   '/system-settings/content/$section': typeof AuthenticatedSystemSettingsContentSectionRoute
@@ -452,6 +467,7 @@ export interface FileRoutesByFullPath {
   '/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
   '/lobehub/conversations/': typeof AuthenticatedLobehubConversationsIndexRoute
+  '/lobehub/knowledge-bases/': typeof AuthenticatedLobehubKnowledgeBasesIndexRoute
   '/lobehub/users/': typeof AuthenticatedLobehubUsersIndexRoute
   '/system-settings/auth/': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/system-settings/billing/': typeof AuthenticatedSystemSettingsBillingIndexRoute
@@ -503,6 +519,7 @@ export interface FileRoutesByTo {
   '/users': typeof AuthenticatedUsersIndexRoute
   '/wallet': typeof AuthenticatedWalletIndexRoute
   '/pricing/$modelId': typeof PricingModelIdIndexRoute
+  '/lobehub/knowledge-bases/$id': typeof AuthenticatedLobehubKnowledgeBasesIdRoute
   '/system-settings/auth/$section': typeof AuthenticatedSystemSettingsAuthSectionRoute
   '/system-settings/billing/$section': typeof AuthenticatedSystemSettingsBillingSectionRoute
   '/system-settings/content/$section': typeof AuthenticatedSystemSettingsContentSectionRoute
@@ -511,6 +528,7 @@ export interface FileRoutesByTo {
   '/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
   '/lobehub/conversations': typeof AuthenticatedLobehubConversationsIndexRoute
+  '/lobehub/knowledge-bases': typeof AuthenticatedLobehubKnowledgeBasesIndexRoute
   '/lobehub/users': typeof AuthenticatedLobehubUsersIndexRoute
   '/system-settings/auth': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/system-settings/billing': typeof AuthenticatedSystemSettingsBillingIndexRoute
@@ -566,6 +584,7 @@ export interface FileRoutesById {
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
   '/_authenticated/wallet/': typeof AuthenticatedWalletIndexRoute
   '/pricing/$modelId/': typeof PricingModelIdIndexRoute
+  '/_authenticated/lobehub/knowledge-bases/$id': typeof AuthenticatedLobehubKnowledgeBasesIdRoute
   '/_authenticated/system-settings/auth/$section': typeof AuthenticatedSystemSettingsAuthSectionRoute
   '/_authenticated/system-settings/billing/$section': typeof AuthenticatedSystemSettingsBillingSectionRoute
   '/_authenticated/system-settings/content/$section': typeof AuthenticatedSystemSettingsContentSectionRoute
@@ -574,6 +593,7 @@ export interface FileRoutesById {
   '/_authenticated/system-settings/security/$section': typeof AuthenticatedSystemSettingsSecuritySectionRoute
   '/_authenticated/system-settings/site/$section': typeof AuthenticatedSystemSettingsSiteSectionRoute
   '/_authenticated/lobehub/conversations/': typeof AuthenticatedLobehubConversationsIndexRoute
+  '/_authenticated/lobehub/knowledge-bases/': typeof AuthenticatedLobehubKnowledgeBasesIndexRoute
   '/_authenticated/lobehub/users/': typeof AuthenticatedLobehubUsersIndexRoute
   '/_authenticated/system-settings/auth/': typeof AuthenticatedSystemSettingsAuthIndexRoute
   '/_authenticated/system-settings/billing/': typeof AuthenticatedSystemSettingsBillingIndexRoute
@@ -628,6 +648,7 @@ export interface FileRouteTypes {
     | '/users/'
     | '/wallet/'
     | '/pricing/$modelId/'
+    | '/lobehub/knowledge-bases/$id'
     | '/system-settings/auth/$section'
     | '/system-settings/billing/$section'
     | '/system-settings/content/$section'
@@ -636,6 +657,7 @@ export interface FileRouteTypes {
     | '/system-settings/security/$section'
     | '/system-settings/site/$section'
     | '/lobehub/conversations/'
+    | '/lobehub/knowledge-bases/'
     | '/lobehub/users/'
     | '/system-settings/auth/'
     | '/system-settings/billing/'
@@ -687,6 +709,7 @@ export interface FileRouteTypes {
     | '/users'
     | '/wallet'
     | '/pricing/$modelId'
+    | '/lobehub/knowledge-bases/$id'
     | '/system-settings/auth/$section'
     | '/system-settings/billing/$section'
     | '/system-settings/content/$section'
@@ -695,6 +718,7 @@ export interface FileRouteTypes {
     | '/system-settings/security/$section'
     | '/system-settings/site/$section'
     | '/lobehub/conversations'
+    | '/lobehub/knowledge-bases'
     | '/lobehub/users'
     | '/system-settings/auth'
     | '/system-settings/billing'
@@ -749,6 +773,7 @@ export interface FileRouteTypes {
     | '/_authenticated/users/'
     | '/_authenticated/wallet/'
     | '/pricing/$modelId/'
+    | '/_authenticated/lobehub/knowledge-bases/$id'
     | '/_authenticated/system-settings/auth/$section'
     | '/_authenticated/system-settings/billing/$section'
     | '/_authenticated/system-settings/content/$section'
@@ -757,6 +782,7 @@ export interface FileRouteTypes {
     | '/_authenticated/system-settings/security/$section'
     | '/_authenticated/system-settings/site/$section'
     | '/_authenticated/lobehub/conversations/'
+    | '/_authenticated/lobehub/knowledge-bases/'
     | '/_authenticated/lobehub/users/'
     | '/_authenticated/system-settings/auth/'
     | '/_authenticated/system-settings/billing/'
@@ -1103,6 +1129,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLobehubConversationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/lobehub/knowledge-bases/': {
+      id: '/_authenticated/lobehub/knowledge-bases/'
+      path: '/lobehub/knowledge-bases'
+      fullPath: '/lobehub/knowledge-bases/'
+      preLoaderRoute: typeof AuthenticatedLobehubKnowledgeBasesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lobehub/knowledge-bases/$id': {
+      id: '/_authenticated/lobehub/knowledge-bases/$id'
+      path: '/lobehub/knowledge-bases/$id'
+      fullPath: '/lobehub/knowledge-bases/$id'
+      preLoaderRoute: typeof AuthenticatedLobehubKnowledgeBasesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/lobehub/users/': {
       id: '/_authenticated/lobehub/users/'
       path: '/lobehub/users'
@@ -1314,7 +1354,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedUsageLogsIndexRoute: typeof AuthenticatedUsageLogsIndexRoute
   AuthenticatedUsersIndexRoute: typeof AuthenticatedUsersIndexRoute
   AuthenticatedWalletIndexRoute: typeof AuthenticatedWalletIndexRoute
+  AuthenticatedLobehubKnowledgeBasesIdRoute: typeof AuthenticatedLobehubKnowledgeBasesIdRoute
   AuthenticatedLobehubConversationsIndexRoute: typeof AuthenticatedLobehubConversationsIndexRoute
+  AuthenticatedLobehubKnowledgeBasesIndexRoute: typeof AuthenticatedLobehubKnowledgeBasesIndexRoute
   AuthenticatedLobehubUsersIndexRoute: typeof AuthenticatedLobehubUsersIndexRoute
 }
 
@@ -1340,8 +1382,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedUsageLogsIndexRoute: AuthenticatedUsageLogsIndexRoute,
   AuthenticatedUsersIndexRoute: AuthenticatedUsersIndexRoute,
   AuthenticatedWalletIndexRoute: AuthenticatedWalletIndexRoute,
+  AuthenticatedLobehubKnowledgeBasesIdRoute:
+    AuthenticatedLobehubKnowledgeBasesIdRoute,
   AuthenticatedLobehubConversationsIndexRoute:
     AuthenticatedLobehubConversationsIndexRoute,
+  AuthenticatedLobehubKnowledgeBasesIndexRoute:
+    AuthenticatedLobehubKnowledgeBasesIndexRoute,
   AuthenticatedLobehubUsersIndexRoute: AuthenticatedLobehubUsersIndexRoute,
 }
 

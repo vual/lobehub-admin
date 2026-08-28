@@ -402,5 +402,18 @@ func SetApiRouter(router *gin.Engine) {
 			lobeHubConversationRoute.GET("/:id/messages", controller.ListLobeHubConversationMessages)
 		}
 
+		lobeHubKnowledgeBaseRoute := apiRouter.Group("/lobehub/knowledge-bases")
+		lobeHubKnowledgeBaseRoute.Use(middleware.AdminAuth())
+		{
+			lobeHubKnowledgeBaseRoute.GET("", controller.ListLobeHubKnowledgeBases)
+			lobeHubKnowledgeBaseRoute.GET("/filters", controller.ListLobeHubKnowledgeBaseFilters)
+			lobeHubKnowledgeBaseRoute.GET("/:id", controller.GetLobeHubKnowledgeBase)
+			lobeHubKnowledgeBaseRoute.PATCH("/:id", controller.UpdateLobeHubKnowledgeBase)
+			lobeHubKnowledgeBaseRoute.GET("/:id/files", controller.ListLobeHubKnowledgeBaseFiles)
+			lobeHubKnowledgeBaseRoute.GET("/:id/documents", controller.ListLobeHubKnowledgeBaseDocuments)
+			lobeHubKnowledgeBaseRoute.GET("/:id/documents/:documentId", controller.GetLobeHubKnowledgeBaseDocument)
+			lobeHubKnowledgeBaseRoute.GET("/:id/files/:fileId/chunks", controller.ListLobeHubKnowledgeBaseChunks)
+		}
+
 	}
 }

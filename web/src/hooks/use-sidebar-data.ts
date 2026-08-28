@@ -174,6 +174,11 @@ export function useSidebarData(): SidebarData {
             icon: MessageSquare,
             requiredRole: ROLE.SUPER_ADMIN,
           },
+          {
+            title: t('LobeHub Knowledge Bases'),
+            url: '/lobehub/knowledge-bases',
+            icon: Database,
+          },
         ],
       },
     ],

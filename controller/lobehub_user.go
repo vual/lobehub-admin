@@ -242,8 +242,10 @@ func parseOptionalBool(value string) (*bool, error) {
 func writeLobeHubError(c *gin.Context, err error) {
 	status := http.StatusInternalServerError
 	code := "LOBEHUB_INTERNAL_ERROR"
-	message := "Failed to manage LobeHub user"
+	message := "Failed to manage LobeHub data"
 	switch {
+	case errors.Is(err, service.ErrInvalidLobeHubKnowledgeBaseInput):
+		status, code, message = http.StatusBadRequest, "LOBEHUB_INVALID_INPUT", err.Error()
 	case errors.Is(err, service.ErrInvalidLobeHubUserInput):
 		status, code, message = http.StatusBadRequest, "LOBEHUB_INVALID_INPUT", err.Error()
 	case errors.Is(err, service.ErrInvalidLobeHubConversationInput), errors.Is(err, model.ErrLobeHubConversationCursor):
@@ -256,6 +258,10 @@ func writeLobeHubError(c *gin.Context, err error) {
 		status, code, message = http.StatusNotFound, "LOBEHUB_USER_NOT_FOUND", err.Error()
 	case errors.Is(err, model.ErrLobeHubConversationNotFound):
 		status, code, message = http.StatusNotFound, "LOBEHUB_CONVERSATION_NOT_FOUND", err.Error()
+	case errors.Is(err, model.ErrLobeHubKnowledgeBaseNotFound):
+		status, code, message = http.StatusNotFound, "LOBEHUB_KNOWLEDGE_BASE_NOT_FOUND", err.Error()
+	case errors.Is(err, model.ErrLobeHubKnowledgeBaseStale):
+		status, code, message = http.StatusConflict, "LOBEHUB_KNOWLEDGE_BASE_CONFLICT", err.Error()
 	case errors.Is(err, model.ErrLobeHubConflict), errors.Is(err, model.ErrLobeHubStaleUpdate), errors.Is(err, model.ErrLobeHubCredentialState), errors.Is(err, model.ErrLobeHubRoleConfirmation):
 		status, code, message = http.StatusConflict, "LOBEHUB_USER_CONFLICT", err.Error()
 	}
