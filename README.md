@@ -2,9 +2,9 @@
 
 [English](./README.en.md)
 
-基于 [new-api](https://github.com/QuantumNous/new-api) 构建的 AI API 网关与 LobeHub 管理平台。
+基于 [new-api](https://github.com/QuantumNous/new-api) 构建的 AI API 网关与 [LobeHub](https://github.com/lobehub/lobehub) 管理平台。
 
-本项目保留 new-api 的完整能力，并增加 LobeHub 用户与会话管理功能，方便在同一个后台完成 API 网关运维和 LobeHub 账号治理。
+本项目保留 new-api 的完整能力，并增加 LobeHub 管理功能，方便在同一个后台完成 API 网关运维和 LobeHub 后台管理。
 
 ## 主要新增功能
 
