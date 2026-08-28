@@ -35,6 +35,20 @@
 
 会话管理入口仅对超级管理员开放。会话内容可能包含用户输入、模型输出、附件链接和业务元数据，请根据组织的数据访问和隐私规范配置管理员权限。
 
+### LobeHub 知识库 / RAG 管理
+
+登录管理员后台后，可在侧边栏的「LobeHub → 知识库」中：
+
+- 分页查看全部个人知识库和 Workspace 知识库，并按 ID、名称、创建者、Workspace、可见性和 RAG 状态搜索或筛选
+- 查看文件、文档、切片数量、向量覆盖率、存储大小、创建者和 Workspace 映射
+- 查看文件级分块 / 向量任务状态、任务错误、文档解析正文、页面数据、编辑器数据和切片文本
+- 仅修改知识库名称、描述和头像；使用更新时间进行乐观锁校验，避免覆盖其他管理员的修改
+- 只展示向量是否存在和向量模型，不读取或返回向量数组
+
+第一版不提供创建、删除、共享、转移所有者或 Workspace、文件解绑、任务重试、重新分块和重新向量化操作。文件存储地址只按数据库值展示，不生成签名地址，也不读取或删除对象存储文件。
+
+知识库管理入口：`/lobehub/knowledge-bases`。该模块只读取和更新 LobeHub PostgreSQL 表，不修改 LobeHub 的接口、代码或表结构。
+
 ## LobeHub 集成要求
 
 LobeHub 用户管理读取的是已有 LobeHub PostgreSQL 业务表，不会替 LobeHub 创建或升级表结构。
@@ -45,6 +59,7 @@ LobeHub 用户管理读取的是已有 LobeHub PostgreSQL 业务表，不会替 
 2. LobeHub 业务表必须位于同一个 PostgreSQL 数据库中，并且网关连接账号具备读取和写入权限。
 3. `LOBEHUB_DB_SCHEMA` 配置为 LobeHub 业务表所在 schema，默认为 `public`。
 4. LobeHub 用户管理需要 `users`、`accounts`、`auth_sessions` 以及 OIDC 相关表和字段；启用会话管理时，还需要 `topics`、`messages`、`threads`、`message_groups`、`agents`、`chat_groups` 及消息附件、插件、翻译、搜索查询和 TTS 相关表及字段。
+5. 启用知识库管理时，还需要 `knowledge_bases`、`knowledge_base_files`、`files`、`documents`、`async_tasks`、`file_chunks`、`chunks` 和 `embeddings` 表及本模块读取的字段。管理端会在访问时校验 schema、表和字段；缺失或不兼容时只返回 `LOBEHUB_SCHEMA_UNAVAILABLE`。
 
 示例配置：
 
@@ -228,7 +243,7 @@ go run main.go
 1. 登录管理后台。
 2. 在系统设置中配置渠道、模型、计费和安全策略。
 3. 确认 `LOBEHUB_DB_SCHEMA` 指向正确的 LobeHub schema。
-4. 从侧边栏进入「LobeHub → 用户管理」验证用户列表和操作权限；超级管理员还可以进入「LobeHub → 会话管理」查看会话和消息详情。
+4. 从侧边栏进入「LobeHub → 用户管理」验证用户列表和操作权限；超级管理员还可以进入「LobeHub → 会话管理」查看会话和消息详情，管理员可以进入「LobeHub → 知识库」查看知识库和 RAG 状态。
 
 LobeHub 用户管理入口只对网关管理员开放；修改 LobeHub 全局角色属于高风险操作，需要更高权限，并可能使用户现有登录凭据失效。
 
@@ -255,10 +270,15 @@ LobeHub 用户管理相关实现主要位于：
 - `controller/lobehub_conversation.go`
 - `service/lobehub_conversation.go`
 - `model/lobehub_conversation.go`
+- `controller/lobehub_knowledge_base.go`
+- `service/lobehub_knowledge_base.go`
+- `model/lobehub_knowledge_base.go`
 - `web/src/features/lobehub-users/`
 - `web/src/routes/_authenticated/lobehub/users/`
 - `web/src/features/lobehub-conversations/`
 - `web/src/routes/_authenticated/lobehub/conversations/`
+- `web/src/features/lobehub-knowledge-bases/`
+- `web/src/routes/_authenticated/lobehub/knowledge-bases/`
 
 ## 开发与检查
 
